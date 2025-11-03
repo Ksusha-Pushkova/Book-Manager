@@ -54,6 +54,16 @@ public class ConsoleInterface {
         int year = getNumberInput("Publication year: ");
         String genre = getTextInput("Category: ");
         
+        if (title.isEmpty() || author.isEmpty()) {
+            System.out.println("Error: Title and author are required!");
+            return;
+        }
+        
+        if (year < 1000 || year > 2030) {
+            System.out.println("Error: Year must be between 1000 and 2030!");
+            return;
+        }
+        
         Book newBook = new Book(title, author, year, genre);
         
         if (manager.addNewBook(newBook)) {
@@ -82,7 +92,23 @@ public class ConsoleInterface {
         
         String finalTitle = newTitle.isEmpty() ? existing.getBookName() : newTitle;
         String finalAuthor = newAuthor.isEmpty() ? existing.getWriter() : newAuthor;
-        int finalYear = yearInput.isEmpty() ? existing.getPublishDate() : Integer.parseInt(yearInput);
+        
+        int finalYear;
+        if (yearInput.isEmpty()) {
+            finalYear = existing.getPublishDate();
+        } else {
+            try {
+                finalYear = Integer.parseInt(yearInput);
+                if (finalYear < 1000 || finalYear > 2030) {
+                    System.out.println("Error: Year must be between 1000 and 2030!");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Invalid year format!");
+                return;
+            }
+        }
+        
         String finalGenre = newGenre.isEmpty() ? existing.getCategory() : newGenre;
         
         Book updated = new Book(finalTitle, finalAuthor, finalYear, finalGenre);
@@ -91,7 +117,7 @@ public class ConsoleInterface {
         if (manager.updateBook(existing, updated)) {
             System.out.println("Book updated!");
         } else {
-            System.out.println("Update failed!");
+            System.out.println("Update failed! Possibly a duplicate book.");
         }
     }
     
@@ -167,7 +193,7 @@ public class ConsoleInterface {
         if (manager.retrieveData()) {
             System.out.println("Collection loaded!");
         } else {
-            System.out.println("Load failed!");
+            System.out.println("Load failed or no saved data found!");
         }
     }
     

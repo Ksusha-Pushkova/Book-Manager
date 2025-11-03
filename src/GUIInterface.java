@@ -16,6 +16,9 @@ public class GUIInterface extends JFrame {
     private final Color DARK_PINK = new Color(219, 112, 147);
     private final Color LIGHT_PINK = new Color(255, 250, 250);
     
+    private JTextField titleField, authorField, yearField, categoryField;
+    private JCheckBox availableCheck;
+    
     public GUIInterface() {
         bookKeeper = new LibraryManager();
         initializeWindow();
@@ -266,11 +269,11 @@ public class GUIInterface extends JFrame {
         JPanel formPanel = new JPanel(new GridLayout(5, 2, 8, 12));
         formPanel.setBackground(BG_COLOR);
         
-        JTextField titleField = createStyledTextField();
-        JTextField authorField = createStyledTextField();
-        JTextField yearField = createStyledTextField();
-        JTextField categoryField = createStyledTextField();
-        JCheckBox availableCheck = new JCheckBox("Available for borrowing", true);
+        titleField = createStyledTextField();
+        authorField = createStyledTextField();
+        yearField = createStyledTextField();
+        categoryField = createStyledTextField();
+        availableCheck = new JCheckBox("Available for borrowing", true);
         availableCheck.setBackground(BG_COLOR);
         availableCheck.setForeground(DARK_PINK);
         
@@ -331,15 +334,11 @@ public class GUIInterface extends JFrame {
     
     private void handleBookSave(JDialog dialog, Book existingBook) {
         try {
-            Component formComponent = ((JPanel)dialog.getContentPane().getComponent(0)).getComponent(0);
-            if (!(formComponent instanceof JPanel)) return;
-            
-            JPanel formPanel = (JPanel) formComponent;
-            String titleText = ((JTextField)formPanel.getComponent(1)).getText().trim();
-            String authorText = ((JTextField)formPanel.getComponent(3)).getText().trim();
-            String yearText = ((JTextField)formPanel.getComponent(5)).getText().trim();
-            String categoryText = ((JTextField)formPanel.getComponent(7)).getText().trim();
-            boolean availableStatus = ((JCheckBox)formPanel.getComponent(9)).isSelected();
+            String titleText = titleField.getText().trim();
+            String authorText = authorField.getText().trim();
+            String yearText = yearField.getText().trim();
+            String categoryText = categoryField.getText().trim();
+            boolean availableStatus = availableCheck.isSelected();
             
             if (titleText.isEmpty() || authorText.isEmpty()) {
                 showMessage("Book title and author are required! ✨", "Missing Info");
@@ -350,7 +349,7 @@ public class GUIInterface extends JFrame {
             try {
                 publicationYear = Integer.parseInt(yearText);
                 if (publicationYear < 1000 || publicationYear > 2025) {
-                    showMessage("Please enter a valid year between 1000 and 2030", "Invalid Year");
+                    showMessage("Please enter a valid year between 1000 and 2025", "Invalid Year");
                     return;
                 }
             } catch (NumberFormatException ex) {
@@ -370,6 +369,10 @@ public class GUIInterface extends JFrame {
                 }
             } else {
                 operationSuccess = bookKeeper.updateExistingBook(existingBook, newBookEntry);
+                if (!operationSuccess) {
+                    showMessage("Update failed! Possibly a duplicate book.", "Update Error");
+                    return;
+                }
             }
             
             if (operationSuccess) {

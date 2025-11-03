@@ -24,6 +24,11 @@ public class LibraryManager {
     public boolean updateExistingBook(Book oldVersion, Book newVersion) {
         int position = myBooks.indexOf(oldVersion);
         if (position >= 0) {
+            for (int i = 0; i < myBooks.size(); i++) {
+                if (i != position && myBooks.get(i).equals(newVersion)) {
+                    return false;
+                }
+            }
             myBooks.set(position, newVersion);
             return true;
         }
@@ -62,6 +67,13 @@ public class LibraryManager {
     public List<Book> searchWithFilters(String titlePart, String authorPart, String categoryPart, Integer exactYear) {
         List<Book> results = new ArrayList<>();
         
+        if ((titlePart == null || titlePart.isEmpty()) && 
+            (authorPart == null || authorPart.isEmpty()) && 
+            (categoryPart == null || categoryPart.isEmpty()) && 
+            exactYear == null) {
+            return new ArrayList<>(myBooks);
+        }
+        
         for (Book book : myBooks) {
             boolean matches = true;
             
@@ -70,7 +82,7 @@ public class LibraryManager {
             }
             
             if (matches && authorPart != null && !authorPart.isEmpty()) {
-                matches = book.fetchWriter().toLowerCase().contains(authorPart.toLowerCase());
+                matches = book.getWriter().toLowerCase().contains(authorPart.toLowerCase());
             }
             
             if (matches && categoryPart != null && !categoryPart.isEmpty()) {
@@ -134,5 +146,33 @@ public class LibraryManager {
         return myBooks.stream()
                      .filter(Book::isOldBook)
                      .collect(Collectors.toList());
+    }
+    
+    public boolean addNewBook(Book book) {
+        return addBookToCollection(book);
+    }
+    
+    public boolean updateBook(Book oldBook, Book newBook) {
+        return updateExistingBook(oldBook, newBook);
+    }
+    
+    public List<Book> getFullCollection() {
+        return getAllMyBooks();
+    }
+    
+    public Book findBookByName(String title) {
+        return locateBookByTitle(title);
+    }
+    
+    public List<Book> filterBooks(String title, String author, String category, Integer year) {
+        return searchWithFilters(title, author, category, year);
+    }
+    
+    public boolean storeData() {
+        return saveMyLibrary();
+    }
+    
+    public boolean retrieveData() {
+        return loadMyLibrary();
     }
 }
